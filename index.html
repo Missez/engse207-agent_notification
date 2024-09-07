@@ -46,14 +46,31 @@
         var CallID;
 
         let statusLabel;
-
-        //--Dev Server------------------------------
+        
+        //--prod Server------------------------------
         var APIServer = "https://10.21.43.203:8300/api/v1";
         var WebSecketServer = "ws://10.21.43.203:8301";
 
-        //--Staging Server------------------------------
+        //--Dev Server------------------------------
         //var APIServer = "https://192.168.56.106:8443/api/v1";
         //var WebSecketServer = "ws://192.168.56.106:3071";
+
+        let ParseServerAPI = "https://10.21.43.203:8305/api";
+        let ParseMasterKey = "wallboardapi";
+        let ParseClientKey = "wallboardapi";
+        let ParseJavascriptKey = "wallboardapi";
+        let ParseAppId = "wallboardapi";
+        let TeamNo = '3'; //<-- Enter you Team No. here.
+
+        let currentAgent = {
+            AgentCode: '',
+            AgentName: 'Agent1',
+            Team: TeamNo,
+            AgentStatus: '',
+            AgentStatusCode: '5', //-- Hard Code
+            IsLogin: '',
+        }
+
 
         var ConcurrentCall = [];
         var connectSocket = false;
@@ -303,12 +320,40 @@
 
         }
 
+        // $(function() {
+        //     $("#statusSelect").on("change", function() {
+        //         let selectedStatus = $(this).val();
+        //         statusDisplay(selectedStatus);
+        //         console.log(AgentCode, selectedStatus);
+        //         // Send the updated status to the server using API
+        //         $.ajax({
+        //         type: "POST",
+        //         url: APIServer + "/postOnlineAgentStatus",
+        //         data: JSON.stringify({
+        //             AgentCode: AgentCode,
+        //             IsLogin: "1",
+        //             AgentStatus: selectedStatus
+        //         }),
+        //         contentType: "application/json", // Add this line
+        //         headers: {
+        //             'Authorization': 'Bearer 1aaZ!ARgAQGuQzp00D5D000000.mOv2jmhXkfIsjgywpCIh7.HZpc6vED1LCbc90DTaVDJwdNqbTW5r4uZicv8AFfkOE1ialqnR8UN5.wnAgh090h'
+        //         },
+        //         success: function(response) {
+        //             console.log(response);
+        //         },
+        //         error: function(xhr, status, error) {
+        //             console.error(error);
+        //         }
+        //         });
+        //     });
+        //     });
         $(function() {
             $("#statusSelect").on("change", function() {
                 let selectedStatus = $(this).val();
                 statusDisplay(selectedStatus);
                 console.log(AgentCode, selectedStatus);
-                // Send the updated status to the server using API
+
+                // Send the updated status to APIServer
                 $.ajax({
                 type: "POST",
                 url: APIServer + "/postOnlineAgentStatus",
@@ -317,7 +362,7 @@
                     IsLogin: "1",
                     AgentStatus: selectedStatus
                 }),
-                contentType: "application/json", // Add this line
+                contentType: "application/json",
                 headers: {
                     'Authorization': 'Bearer 1aaZ!ARgAQGuQzp00D5D000000.mOv2jmhXkfIsjgywpCIh7.HZpc6vED1LCbc90DTaVDJwdNqbTW5r4uZicv8AFfkOE1ialqnR8UN5.wnAgh090h'
                 },
@@ -328,9 +373,29 @@
                     console.error(error);
                 }
                 });
-            });
-            });
 
+                // Send the updated status to ParseServerAPI
+                const data = {
+                AgentCode: AgentCode,
+                AgentName: currentAgent.AgentName,
+                Queue: currentAgent.Team,
+                AgentStatus: selectedStatus,
+                AgentStatusCode: currentAgent.AgentStatusCode,
+                IsLogin: "1"
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: ParseServerAPI + "/functions/postOnlineAgentListByTeam",
+                headers: {
+                    "X-Parse-Application-Id": ParseAppId,
+                    "X-Parse-Master-Key": ParseMasterKey
+                },
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+            })
+            });
+            });
 
             function sendMessage() {
                 var agentCode = $("#agentInput").val();
