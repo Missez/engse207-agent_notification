@@ -48,14 +48,14 @@
         let statusLabel;
         
         //--prod Server------------------------------
-        var APIServer = "https://10.21.43.203:8300/api/v1";
-        var WebSecketServer = "ws://10.21.43.203:8301";
+        var APIServer = "https://localhost:8300/api/v1";
+        var WebSecketServer = "ws://localhost:8301";
 
         //--Dev Server------------------------------
         //var APIServer = "https://192.168.56.106:8443/api/v1";
         //var WebSecketServer = "ws://192.168.56.106:3071";
 
-        let ParseServerAPI = "https://10.21.43.203:8305/api";
+        let ParseServerAPI = "https://localhost:8305/api";
         let ParseMasterKey = "wallboardapi";
         let ParseClientKey = "wallboardapi";
         let ParseJavascriptKey = "wallboardapi";
@@ -567,6 +567,33 @@
                 .addClass("badge bg-dark")
                 .append("N/A");
             IsLogin = 0;
+            const agentCode = "3001"; // เปลี่ยนเป็น Agent Code ที่ต้องการ
+            const agentName = "lertpisit"; // เปลี่ยนเป็น Agent Name ที่ต้องการ
+            const queue = "3"; // เปลี่ยนเป็น Queue ที่ต้องการ
+            const agentStatus = "1"; // เปลี่ยนเป็น Agent Status ที่ต้องการ
+            const agentStatusCode = "5"; // เปลี่ยนเป็น Agent Status Code ที่ต้องการ
+
+            $.ajax({
+                type: "POST",
+                url: `https://localhost:8305/api/functions/postOnlineAgentListByTeam?AgentCode=${agentCode}&AgentName=${agentName}&Queue=${queue}&AgentStatus=${agentStatus}&AgentStatusCode=${agentStatusCode}&IsLogin=${IsLogin}`,
+                contentType: "application/json",
+                headers: {
+                    'X-Parse-Application-Id': 'wallboardapi',
+                    'X-Parse-Master-Key': 'wallboardapi'
+                },
+                success: function(response) {
+                    console.log("Logout status sent successfully:", response);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error sending logout status:", error);
+                }
+            });
+
+            console.log('Socket is connected');
+            console.log(" Agent Code  -> Set empty");
+            localStorage.setItem("agent", "")
+            console.log(localStorage.getItem("agent"));
+
             $('#display').show()
             $("#agent").val('')
             $("#agent").focus();
